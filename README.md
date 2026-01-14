@@ -90,3 +90,19 @@ docker push puchki2015/devops-qr-code-api:latest
 docker push puchki2015/devops-qr-code-frontend:latest
 
 
+==============================
+
+Now the coding part is done.
+Next the CI/CD pipeline
+SO when any changes will happen in any codebase like api.front end it will genearate a new image and pushed to dockethub
+through github actions.
+
+There is a file under .github\workflows named "build_docker.yaml" which takes care of it automatically
+
+Just you have to create a Personal Access Token(PAT) through hub.docker.com --> Account Settings --> Personal Access Token
+
+Now go to github.com--> go to the repo "devops-kubernetes-frontend-backend"--> Settings --> Secrets and Variables --> Actions-->
+Add a repo secret with name of "DOCKER_HUB_TOKEN" and the value of PAT.
+
+Now to test, make a small changes in any of the files and see the workflow will be triggered automatically
+
