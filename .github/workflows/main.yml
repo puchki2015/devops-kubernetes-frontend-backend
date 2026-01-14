@@ -1,4 +1,4 @@
-name: Build and Publish image to Docker Hub1
+name: Build and Publish image to Docker Hub
 
 on:
   push:
@@ -12,25 +12,62 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: List checked out files
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo ""
+          echo "=== Directory structure ==="
+          ls -la
+          echo ""
+          echo "=== API directory contents ==="
+          ls -la ./api/
+          echo ""
+          echo "=== Frontend directory contents ==="
+          ls -la ./front-end-nextjs/
+          echo ""
+          echo "=== Git status ==="
+          git log -1 --pretty=format:"%h - %an, %ar : %s"
+          echo ""
       
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: puchki2015
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        run: |
+          echo "=== Logging into Docker Hub ==="
+          docker login -u puchki2015 -p ${{ secrets.DOCKER_HUB_TOKEN }}
+          echo "Login successful!"
       
-      - name: Build and push API image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./api
-          push: true
-          tags: puchki2015/devops-qr-code-api:latest
+      - name: Build API image
+        run: |
+          echo "=== Building API Docker image ==="
+          docker build ./api/ -t puchki2015/devops-qr-code-api:latest
+          echo "API image build complete!"
       
-      - name: Build and push Frontend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./front-end-nextjs
-          push: true
-          tags: puchki2015/devops-qr-code-frontend:latest
+      - name: Build Frontend image
+        run: |
+          echo "=== Building Frontend Docker image ==="
+          docker build ./front-end-nextjs/ -t puchki2015/devops-qr-code-frontend:latest
+          echo "Frontend image build complete!"
+      
+      - name: List Docker images
+        run: |
+          echo "=== Available Docker images ==="
+          docker images
+      
+      - name: Push API image to Docker Hub
+        run: |
+          echo "=== Pushing API image to Docker Hub ==="
+          docker push puchki2015/devops-qr-code-api:latest
+          echo "API image pushed successfully!"
+      
+      - name: Push Frontend image to Docker Hub
+        run: |
+          echo "=== Pushing Frontend image to Docker Hub ==="
+          docker push puchki2015/devops-qr-code-frontend:latest
+          echo "Frontend image pushed successfully!"
+      
+      - name: Workflow Summary
+        run: |
+          echo "=== Workflow completed successfully! ==="
+          echo "Images published:"
+          echo "  - puchki2015/devops-qr-code-api:latest"
+          echo "  - puchki2015/devops-qr-code-frontend:latest"
