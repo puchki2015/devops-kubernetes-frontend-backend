@@ -1,0 +1,5 @@
+qrcode
+fastapi
+uvicorn
+python-dotenv
+Pillow
