@@ -30,7 +30,7 @@ os.makedirs(QR_CODE_DIR, exist_ok=True)
 
 @app.get("/")
 async def root():
-    return {"message": "QR Code Generator API is running."}
+    return {"message": "QR Code Generator API is running good."}
 
 @app.post("/generate-qr/")
 async def generate_qr(url: str):
