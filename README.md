@@ -6,7 +6,7 @@
 6. git commit -m "first commit"
 7. git branch -M main
 8. git remote add origin https://github.com/puchki2015/devops-kubernetes-frontend-backend.git
-9. git push -u origin main
+9. 
 
 10. create a folder "api" under C:\Users\agniv\OneDrive\Desktop\devops-kubernetes-frontend-backend and cd api
 11. uv init
@@ -105,4 +105,18 @@ Now go to github.com--> go to the repo "devops-kubernetes-frontend-backend"--> S
 Add a repo secret with name of "DOCKER_HUB_TOKEN" and the value of PAT.
 
 Now to test, make a small changes in any of the files and see the workflow will be triggered automatically
+
+
+
+
+
+==========================
+
+Now, we are trying to spin up a EKS cluster in AWS.
+
+1. Install aws cli
+2. run command--> aws configure, it will ask for access key and secret key
+3. Create the cluster with below command
+
+eksctl create cluster --name Anirban-test --region us-east-1 --nodegroup-name linux-nodes --node-type t3.micro --nodes 2
 
