@@ -94,5 +94,5 @@ jobs:
 
       - name: Deploy to EKS
         run: |
-          kubectl apply -f deployment.yaml
+          kubectl apply -f frontend.yaml
           kubectl apply -f backend.yaml
