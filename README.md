@@ -120,3 +120,35 @@ Now, we are trying to spin up a EKS cluster in AWS.
 
 eksctl create cluster --name Anirban-test --region us-east-1 --nodegroup-name linux-nodes --node-type t3.micro --nodes 2
 
+
+=============================
+
+Now as we will be deploying the deployment and services in the EKS cluster , we need to make some changes in the frontend "page.js"
+
+Development code:
+
+try {
+      const response = await axios.post(`http://localhost:8000/generate-qr?url=${url}`);
+
+
+need to replace with actual service name deployed in EKS
+
+try {
+      const response = await axios.post(`/api/generate-qr?url=${url}`);
+
+
+This page.js is client side code that is coming from browser and that would not translate to the backend server from the end user.
+The end user dont access our internal k8s service/network.
+
+So api route has been created under api/genearte-qr folder ( the same path has been mentioned in page.js client side).
+So if any of the request comes in page.js (that is api/genearte-qr) will be forwarded to backend cluster dns name.
+So DNS transaltion will happen at the server side that is frontend container which has access to backend container. so
+the fronend request will properly go to backend container
+
+ generate-qr is the api where fast api listens on
+
+
+
+
+
+

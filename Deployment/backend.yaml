@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qr-backend-deployment
+  labels:
+    app: qr-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: qr-backend
+  template:
+    metadata:
+      labels:
+        app: qr-backend 
+    spec:
+      containers: 
+        - name: qr-backend
+          image: puchki2015/devops-qr-code-api:latest
+---
+apiVersion: v1         
+kind: Service
+metadata:
+  name: qr-backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: qr-backend 
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
