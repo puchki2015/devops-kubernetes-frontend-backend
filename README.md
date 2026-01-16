@@ -118,7 +118,9 @@ Now, we are trying to spin up a EKS cluster in AWS.
 2. run command--> aws configure, it will ask for access key and secret key
 3. Create the cluster with below command
 
-eksctl create cluster --name Anirban-test --region us-east-1 --nodegroup-name linux-nodes --node-type t3.micro --nodes 2
+eksctl create cluster --name Anirban-test-2 --region us-east-1 --nodegroup-name linux-nodes --node-type t3.micro --nodes 2
+
+
 
 
 =============================
@@ -147,6 +149,121 @@ the fronend request will properly go to backend container
 
  generate-qr is the api where fast api listens on
 
+
+ ====================================
+
+ Explanation:
+
+ Say for example our frontend is running 127.0.0.1:41325
+
+ Now when the user clicks on Genearte QR code the url is formed as 
+
+ 127.0.0.1:41325/api/generate-qr?url=www.example.com`( where you want to generate QR code for )
+
+ User Browser
+    ↓
+Frontend (Next.js running in browser)
+    ↓ fetch('/api/generate-qr?url=www.example.com')
+    ↓
+Next.js API Route (/api/generate-qr/route.js)
+    ↓ axios.post('http://qr-api-service/generate-qr/?url=...')
+    ↓
+Kubernetes Service (qr-api-service)
+    ↓
+Backend Pod (FastAPI)
+    ✓ Receives at /generate-qr/
+
+
+
+Why You See /api in the Browser
+The /api you see in the browser (http://127.0.0.1:61479/api/generate-qr?url=www.example.com) is NOT going to your backend directly!
+
+Step by Step:
+1. Frontend javascript (page.js) call /api/generate-qr?url=${url}
+
+2. Next.js handles /api/* routes automatically
+
+Any request to /api/* in Next.js is handled by files in the app/api/ or pages/api/ directory
+Your file is probably at: app/api/generate-qr/route.js
+
+3. Your API Route then makes a server-side request to the backend:
+
+javascript   axios.post(`http://qr-api-service/generate-qr/?url=${encodeURIComponent(url)}`)
+```
+   - This goes **directly to the Kubernetes service** named `qr-api-service`
+   - Notice: NO `/api` prefix here!
+
+4. **Backend receives** the request at `/generate-qr/` ✓
+
+## This is Actually a Good Architecture!
+
+This pattern is called **Backend for Frontend (BFF)** and has several benefits:
+
+✅ **Security**: Backend credentials stay on the server
+✅ **CORS**: No cross-origin issues
+✅ **Flexibility**: Can modify requests before sending to backend
+✅ **Service Discovery**: Uses Kubernetes DNS (`qr-api-service`)
+
+## Visual Diagram
+```
+┌─────────────────────────────────────────────────────┐
+│ Browser (127.0.0.1:61479)                          │
+│                                                     │
+│  User clicks → fetch('/api/generate-qr?url=...')  │
+└──────────────────────┬──────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│ Next.js Frontend Pod (Port 3000)                   │
+│                                                     │
+│  /api/generate-qr/route.js                        │
+│   ↓                                                │
+│  axios.post('http://qr-api-service/generate-qr')  │
+└──────────────────────┬──────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│ Kubernetes Service: qr-api-service                 │
+│  (Internal DNS routing)                            │
+└──────────────────────┬──────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│ Backend Pod (FastAPI - Port 8000)                  │
+│                                                     │
+│  @app.post("/generate-qr/")                       │
+│    → Generates QR code                             │
+└─────────────────────────────────────────────────────┘
+Important Note: Service Name
+In your code, you're using:
+javascripthttp://qr-api-service/generate-qr/
+Make sure your backend Kubernetes Service is named exactly qr-api-service. Check with:
+bashkubectl get svc
+If it's named differently (like qr-backend-service), update your Next.js API route:
+javascriptconst response = await axios.post(`http://qr-backend-service/generate-qr/?url=${encodeURIComponent(url)}`);
+Summary
+
+/api = Next.js API route (frontend's server-side code)
+/generate-qr = Your FastAPI backend endpoint
+The Next.js API route acts as a proxy/middleware between browser and backend
+This is why it works! The /api never reaches your FastAPI backend
+
+Youtube link:
+
+https://www.youtube.com/watch?v=id_Zabf-4eA&list=PLK_LRl1CH4L-kIl0-5FK6KszocD_1__YZ
+
+=========================================
+
+As i am running in minikube
+the steps are:
+
+1. minikube start
+2. kubectl apply -f Deployment/frontend_copy.yaml ( this is a node port implementaion, but actual production issue Loadbalancer which is present in frontend.yaml)
+3.kubectl apply -f Deployment/backend.yaml
+
+4. kubectl get svc
+5. kubectl get pod -o wide
+6. minikube service qr-frontend-service --url---> This will provide a url, click on that url--> you will find frontend app
 
 
 

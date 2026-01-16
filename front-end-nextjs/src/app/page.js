@@ -11,7 +11,7 @@ export default function Home() {
     e.preventDefault();
     try {
       // const response = await axios.post(`http://localhost:8000/generate-qr?url=${url}`); ---> it is for local testing
-      const response = await axios.post(`http://qr-api-service/generate-qr?url=${url}`);
+      const response = await axios.post(`/api/generate-qr?url=${url}`);
       setQrCodeUrl(response.data.qr_code_url);
     } catch (error) {
       console.error('Error generating QR Code:', error);
@@ -29,7 +29,7 @@ export default function Home() {
           placeholder="Enter URL like https://example.com"
           style={styles.input}
         />
-        <button type="submit" style={styles.button}>Generate QR Code</button>
+        <button type="submit" style={styles.button}>Generate QR Code- V1</button>
       </form>
       {qrCodeUrl && <img src={qrCodeUrl} alt="QR Code" style={styles.qrCode} />}
     </div>
