@@ -6,9 +6,7 @@
 6. git commit -m "first commit"
 7. git branch -M main
 8. git remote add origin https://github.com/puchki2015/devops-kubernetes-frontend-backend.git
-
-
-9. git push -u origin main 
+9. 
 
 10. create a folder "api" under C:\Users\agniv\OneDrive\Desktop\devops-kubernetes-frontend-backend and cd api
 11. uv init
